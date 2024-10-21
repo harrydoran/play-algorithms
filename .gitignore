@@ -19,3 +19,18 @@ Thumbs.db
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Binaries
+static/main.wasm
+static/wasm_exec.js
+
+# Svelte
+.svelte-kit
+
+# Node
+node_modules
+
+# Other common files
+*.log
+*.tmp
+*.temp
