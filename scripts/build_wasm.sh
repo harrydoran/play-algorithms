@@ -1,11 +1,16 @@
 #!/bin/bash
 
-set -e
+# Ensure TinyGo is installed
+if ! command -v tinygo >/dev/null 2>&1; then
+    echo "TinyGo is not installed. Please install it before continuing."
+    exit 1
+fi
 
 cd go
 
-GOOS=js GOARCH=wasm go build -o ../static/main.wasm algorithms/main.go algorithms/fibonacci.go
+# Build the WebAssembly module using TinyGo
+tinygo build -o ../static/main.wasm -target wasm ./algorithms
 
-cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ../static/
+cp "$(tinygo env TINYGOROOT)/targets/wasm_exec.js" ../static/
 
-echo "WebAssembly module built successfully!"
+echo "TinyGoWebAssembly build completed successfully."
