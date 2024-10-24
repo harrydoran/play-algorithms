@@ -1,10 +1,21 @@
 <script lang="ts">
+	import EtudeDoc from '../../../components/EtudeDoc.svelte';
+	import EtudeSection from '../../../components/EtudeSection.svelte';
+	import EtudeCard from '../../../components/EtudeCard.svelte';
 	import { onMount } from 'svelte';
 
-	let dnaInput = `# Langton
-w ESWN bbbb
-b WNES wwww
-1000`;
+	interface Rule {
+		currentColor: string;
+		directions: string;
+		newColors: string;
+	}
+
+	let rules: Rule[] = [
+		{ currentColor: 'w', directions: 'ESWN', newColors: 'bbbb' },
+		{ currentColor: 'b', directions: 'WNES', newColors: 'wwww' }
+	];
+	let steps = 11000;
+	let newRule: Rule = { currentColor: '', directions: '', newColors: '' };
 	let canvas: HTMLCanvasElement;
 	let ctx: CanvasRenderingContext2D;
 
@@ -29,29 +40,22 @@ b WNES wwww
 		let dir = 0; // North
 		let grid = new Map<string, string>();
 
-		// Parse DNA rules
-		let rules = new Map<string, { dirs: string; symbols: string }>();
-		let startSymbol = '';
+		// Convert rules to map
+		let rulesMap = new Map<string, { dirs: string; symbols: string }>();
+		let startSymbol = rules[0]?.currentColor || 'w';
 
-		dnaInput.split('\n').forEach((line) => {
-			if (line.startsWith('#') || line.trim() === '') return;
-
-			const parts = line.trim().split(' ');
-			if (parts.length === 1) {
-				// Number of moves - ignore for now
-				return;
-			}
-
-			const [state, dirs, symbols] = parts;
-			rules.set(state, { dirs, symbols });
-			if (!startSymbol) startSymbol = state;
+		rules.forEach((rule) => {
+			rulesMap.set(rule.currentColor, {
+				dirs: rule.directions,
+				symbols: rule.newColors
+			});
 		});
 
 		// Run simulation
-		for (let i = 0; i < 11000; i++) {
+		for (let i = 0; i < steps; i++) {
 			const key = `${pos.x},${pos.y}`;
 			const currentSymbol = grid.get(key) || startSymbol;
-			const rule = rules.get(currentSymbol)!;
+			const rule = rulesMap.get(currentSymbol)!;
 
 			// Draw current symbol
 			ctx.fillStyle = currentSymbol === 'w' ? '#ffffff' : '#000000';
@@ -83,76 +87,183 @@ b WNES wwww
 	}
 </script>
 
-<svelte:head>
- <title>Ants - Play Algorithms</title>
-</svelte:head>
+<EtudeDoc
+	title="Ants"
+	description="Simulate the movement of an ant on an infinite plane according to specified rules (its 'DNA'), and determine its final position after a given number of steps. Each rule specifies how the ant should turn and what color to leave behind based on the current color it encounters."
+>
+	<EtudeSection title="Simulation">
+		<div class="etude-grid">
+			<EtudeCard title="Visualization">
+				<div class="canvas-container">
+					<canvas bind:this={canvas} width={CANVAS_SIZE} height={CANVAS_SIZE} />
+				</div>
+			</EtudeCard>
 
-<div class="container">
- <h1>Ants</h1>
- <p class="description">
-  Simulate the movement of an ant on an infinite plane according to specified rules (its "DNA"), and
-  determine its final position after a given number of steps. Each rule specifies how the ant should turn
-  and what color to leave behind based on the current color it encounters.
- </p>
+			<EtudeCard title="Rules">
+				<div class="rules-list">
+					{#each rules as rule, i}
+						<div class="rule-item">
+							<div class="rule-display">
+								If {rule.currentColor} → Turn {rule.directions} → New {rule.newColors}
+								<button
+									class="delete-btn"
+									on:click={() => (rules = rules.filter((_, index) => index !== i))}>×</button
+								>
+							</div>
+						</div>
+					{/each}
+				</div>
 
- <div class="simulation">
-	<div class="controls">
-		<textarea bind:value={dnaInput} placeholder="Enter DNA instructions..." rows="10"></textarea>
-		<button on:click={runSimulation}>Run Simulation</button>
-	</div>
+				<form
+					class="add-rule-form"
+					on:submit|preventDefault={() => {
+						if (newRule.currentColor && newRule.directions && newRule.newColors) {
+							rules = [...rules, { ...newRule }];
+							newRule = { currentColor: '', directions: '', newColors: '' };
+						}
+					}}
+				>
+					<h4>Add Rule</h4>
+					<div class="rule-inputs">
+						<label>
+							Current Color:
+							<input
+								type="text"
+								bind:value={newRule.currentColor}
+								placeholder="w/b"
+								maxlength="1"
+								class="input-small"
+							/>
+						</label>
 
-	<div class="canvas-container">
-		<canvas bind:this={canvas} width={CANVAS_SIZE} height={CANVAS_SIZE}></canvas>
-	</div>
-</div>
+						<label>
+							Directions:
+							<input
+								type="text"
+								bind:value={newRule.directions}
+								placeholder="NESW"
+								class="input-small"
+							/>
+						</label>
+
+						<label>
+							New Colors:
+							<input
+								type="text"
+								bind:value={newRule.newColors}
+								placeholder="wwbb"
+								class="input-small"
+							/>
+						</label>
+
+						<div class="button-container">
+							<button type="submit" class="game-button">Add Rule</button>
+						</div>
+					</div>
+				</form>
+
+				<div class="simulation-controls">
+					<h4>Steps</h4>
+					<input type="number" bind:value={steps} min="1" max="100000" class="input-small" />
+					<div class="button-container">
+						<button class="game-button" on:click={runSimulation}>Run Simulation</button>
+					</div>
+				</div>
+			</EtudeCard>
+		</div>
+	</EtudeSection>
+</EtudeDoc>
 
 <style>
-	.simulation {
+	.canvas-container {
 		display: flex;
-		gap: 20px;
-		padding: 20px;
+		justify-content: center;
+		align-items: center;
+		padding: 10px;
 	}
 
-	.controls {
+	.rules-list {
+		margin-bottom: 20px;
+	}
+
+	.rule-item {
+		padding: 8px;
+		border: 1px solid #eee;
+		margin-bottom: 8px;
+		border-radius: 4px;
+	}
+
+	.rule-display {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+	}
+
+	.delete-btn {
+		background: #ff4444;
+		color: white;
+		border: none;
+		border-radius: 50%;
+		width: 24px;
+		height: 24px;
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.add-rule-form {
+		margin-bottom: 20px;
+	}
+
+	.rule-inputs {
 		display: flex;
 		flex-direction: column;
 		gap: 10px;
+		margin-bottom: 10px;
 	}
 
-	textarea {
-		width: 300px;
+	.input-small {
+		width: 100%;
+		max-width: 200px;
+		padding: 4px 8px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
 		font-family: monospace;
 	}
 
-	.canvas-container {
-		border: 1px solid #ccc;
-		background: white;
+	label {
+		display: flex;
+		flex-direction: column;
+		gap: 4px;
+		font-size: 0.9em;
+		color: #666;
 	}
 
-	canvas {
-		display: block;
+	.simulation-controls {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+		margin-top: 20px;
+		padding-top: 20px;
+		border-top: 1px solid #eee;
 	}
 
-	button {
-		padding: 10px;
+	.game-button {
+		padding: 10px 20px;
 		cursor: pointer;
+		background: white;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		font-size: 1em;
 	}
-</style>
 
-<style>
- .container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
- }
+	.button-container {
+		margin-top: 10px;
+	}
 
- h1 {
-  color: #333;
-  margin-bottom: 10px;
- }
-
- .description {
-  color: #666;
-  margin-bottom: 20px;
- }
+	h4 {
+		margin: 0 0 10px 0;
+		color: #555;
+	}
 </style>
