@@ -1,14 +1,12 @@
 <script>
 	import Card from './Card.svelte';
 
-	// Sample data for 12 cards
 	const cards = [
 		{
 			title: 'Parsing Partitions',
 			description:
 				'Identify, validate, and standardize the format of integer partition data from text files containing various types of content.',
-			etudeNumber: '01',
-			slug: 'parsing-partitions'
+			etudeNumber: '01'
 		},
 		{
 			title: 'Rollin',
@@ -81,7 +79,7 @@
 
 <div class="grid">
 	{#each cards as card}
-		<Card {...card} slug={card.title.toLowerCase().replace(/\s+/g, '-')} />
+		<Card {...card} />
 	{/each}
 </div>
 

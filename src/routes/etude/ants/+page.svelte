@@ -83,7 +83,19 @@ b WNES wwww
 	}
 </script>
 
-<div class="simulation">
+<svelte:head>
+ <title>Ants - Play Algorithms</title>
+</svelte:head>
+
+<div class="container">
+ <h1>Ants</h1>
+ <p class="description">
+  Simulate the movement of an ant on an infinite plane according to specified rules (its "DNA"), and
+  determine its final position after a given number of steps. Each rule specifies how the ant should turn
+  and what color to leave behind based on the current color it encounters.
+ </p>
+
+ <div class="simulation">
 	<div class="controls">
 		<textarea bind:value={dnaInput} placeholder="Enter DNA instructions..." rows="10"></textarea>
 		<button on:click={runSimulation}>Run Simulation</button>
@@ -125,4 +137,22 @@ b WNES wwww
 		padding: 10px;
 		cursor: pointer;
 	}
+</style>
+
+<style>
+ .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+ }
+
+ h1 {
+  color: #333;
+  margin-bottom: 10px;
+ }
+
+ .description {
+  color: #666;
+  margin-bottom: 20px;
+ }
 </style>
