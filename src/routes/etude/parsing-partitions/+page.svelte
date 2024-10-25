@@ -2,6 +2,7 @@
 	import EtudeDoc from '../../../components/EtudeDoc.svelte';
 	import EtudeSection from '../../../components/EtudeSection.svelte';
 	import EtudeCard from '../../../components/EtudeCard.svelte';
+	import { validateAllLines, CONSTANTS } from '$lib/parsing-partitions';
 
 	let inputText = `1 1 1
 3
@@ -10,156 +11,39 @@
 1 1 1 1`;
 	let outputText = '';
 
-	interface ValidationResult {
-		isValid: boolean;
-		message: string;
-	}
-
-	function validateLine(line: string): ValidationResult {
-		// Skip empty lines or comment lines
-		if (line.trim() === '' || line.startsWith('#')) {
-			return { isValid: true, message: line };
-		}
-
-		// Check if it's a separator line
-		if (line.trim().replace(/[-]/g, '') === '') {
-			return { isValid: true, message: '---' };
-		}
-
-		// Validate partition format (numbers separated by spaces)
-		const numbers = line.trim().split(/\s+/).map(Number);
-		if (numbers.some(isNaN)) {
-			return {
-				isValid: false,
-				message: `# INVALID: ${line}\n#   REASON: Line contains non-numeric values`
-			};
-		}
-
-		// Check if numbers are in descending order
-		for (let i = 1; i < numbers.length; i++) {
-			if (numbers[i] > numbers[i - 1]) {
-				return {
-					isValid: false,
-					message: `# INVALID: ${line}\n#   REASON: Partition numbers must be in descending order`
-				};
-			}
-		}
-
-		return { isValid: true, message: numbers.join(' ') };
-	}
-
-	// Removed unused getPartition function
-
-	function getScenarioPartitions(lines: string[]): number[][] {
-		const partitions: number[][] = [];
-		let currentPartition: number[] = [];
-
-		for (const line of lines) {
-			if (line.trim() === '' || line.startsWith('#')) {
-				continue;
-			}
-
-			if (line.trim().replace(/[-]/g, '') === '') {
-				if (currentPartition.length > 0) {
-					partitions.push(currentPartition);
-					currentPartition = [];
-				}
-				continue;
-			}
-
-			const numbers = line
-				.trim()
-				.split(/\s+/)
-				.map(Number)
-				.filter((n) => !isNaN(n));
-
-			if (numbers.length > 0) {
-				currentPartition = numbers;
-			}
-		}
-
-		if (currentPartition.length > 0) {
-			partitions.push(currentPartition);
-		}
-
-		return partitions;
-	}
-
-	// ... [rest of the utility functions remain the same]
-
 	function parsePartitions() {
-		const lines = inputText.split('\n');
-		let output: string[] = [];
-		let scenarios = [];
-		let currentScenario: string[] = [];
+		try {
+			const scenarios = validateAllLines(inputText);
+			const output: string[] = [];
 
-		for (let line of lines) {
-			const result = validateLine(line);
-
-			if (line.trim().replace(/[-]/g, '') === '') {
-				if (currentScenario.length > 0) {
-					scenarios.push(currentScenario);
+			scenarios.forEach((scenario, index) => {
+				if (!scenario.valid) {
+					output.push(CONSTANTS.INVALID_SCENARIO_MESSAGE);
 				}
-				currentScenario = [];
-				continue;
-			}
+				output.push(...scenario.lines);
 
-			if (result.isValid) {
-				if (!line.startsWith('#') && line.trim() !== '') {
-					currentScenario.push(result.message);
+				if (index < scenarios.length - 1) {
+					output.push(CONSTANTS.SEPARATOR_STRING);
 				}
-			} else {
-				currentScenario.push(result.message);
-			}
+			});
+
+			outputText = output.join('\n');
+		} catch (error) {
+			outputText = `Error processing input: ${error.message}`;
 		}
-
-		if (currentScenario.length > 0) {
-			scenarios.push(currentScenario);
-		}
-
-		// Process each scenario
-		for (let scenario of scenarios) {
-			const partitions = getScenarioPartitions(scenario);
-			const validation = validateScenario(partitions);
-
-			if (!validation.isValid) {
-				output.push(validation.message);
-				output.push(partitionToString(partitions[0]));
-				if (partitions.length > 1) {
-					output.push(partitionToString(partitions[1]));
-				}
-			} else {
-				const moveResult = movesRequired(partitions[0], partitions[1]);
-				output.push(moveResult.message);
-				output.push(partitionToString(partitions[0]));
-
-				if (moveResult.isValid) {
-					const path = getMovePath(partitions[0], partitions[1]);
-					output.push(...path);
-				}
-
-				output.push(partitionToString(partitions[1]));
-			}
-
-			if (scenario !== scenarios[scenarios.length - 1]) {
-				output.push('---');
-			}
-		}
-
-		outputText = output.join('\n');
 	}
 </script>
 
 <EtudeDoc
 	title="Parsing Partitions"
-	description="Identify, validate, and standardize the format of integer partition data from text files containing various types of content."
+	description="Parse and validate integer partition data with support for various formats and comprehensive error handling."
 >
 	<EtudeSection title="Partition Parser">
 		<div class="etude-grid">
 			<EtudeCard title="Input">
 				<p class="etude-info">
-					Enter partition data below. Each partition should be a sequence of numbers in descending
-					order. Use "---" to separate scenarios.
+					Enter partition data using either spaces or commas as delimiters. Numbers must be in
+					descending order. Use "---" to separate scenarios.
 				</p>
 				<textarea
 					class="etude-input"
@@ -179,29 +63,81 @@
 
 	<EtudeSection title="Format Guide">
 		<div class="etude-grid">
-			<EtudeCard title="Valid Format">
-				<pre class="etude-pre">1 1 1
-3
+			<EtudeCard title="Valid Formats">
+				<pre class="etude-pre">3 2 1
+5,4,3
 ---
 2 2
 1 1 1 1</pre>
 				<ul class="etude-list">
-					<li>Numbers must be space-separated</li>
-					<li>Each line represents one partition</li>
-					<li>Numbers must be in descending order</li>
-					<li>Use "---" to separate different scenarios</li>
+					<li>Space-separated numbers: "3 2 1"</li>
+					<li>Comma-separated numbers: "3,2,1"</li>
+					<li>Single numbers: "5"</li>
+					<li>Comments starting with #</li>
+					<li>Scenario separators: "---" or more dashes</li>
 				</ul>
 			</EtudeCard>
 
 			<EtudeCard title="Validation Rules">
 				<ul class="etude-list">
-					<li>All values must be valid numbers</li>
-					<li>Numbers in each partition must be in descending order</li>
-					<li>Each scenario must contain exactly two partitions</li>
-					<li>Both partitions in a scenario must sum to the same value</li>
-					<li>Empty lines and comments (starting with #) are ignored</li>
+					<li>Numbers must be valid integers</li>
+					<li>Numbers must be in descending order</li>
+					<li>No mixing of delimiters (spaces and commas)</li>
+					<li>Comments must start at beginning of line</li>
+					<li>Separators must have at least 3 dashes</li>
+					<li>Empty lines are compressed</li>
 				</ul>
 			</EtudeCard>
 		</div>
 	</EtudeSection>
 </EtudeDoc>
+
+<style>
+	.etude-input {
+		width: 100%;
+		font-family: monospace;
+		padding: 10px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		resize: vertical;
+	}
+
+	.etude-button {
+		margin-top: 10px;
+		padding: 8px 16px;
+		background: white;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		cursor: pointer;
+	}
+
+	.etude-button:hover {
+		background: #f0f0f0;
+	}
+
+	.etude-info {
+		margin-bottom: 10px;
+		color: #666;
+	}
+
+	:global(.etude-pre) {
+		white-space: pre-wrap;
+		word-wrap: break-word;
+		font-family: monospace;
+		background: #f8f8f8;
+		padding: 10px;
+		border-radius: 4px;
+		margin: 0;
+	}
+
+	:global(.etude-list) {
+		list-style-type: disc;
+		padding-left: 20px;
+		margin: 0;
+	}
+
+	:global(.etude-list li) {
+		margin-bottom: 8px;
+		color: #666;
+	}
+</style>

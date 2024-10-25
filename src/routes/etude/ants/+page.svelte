@@ -2,6 +2,7 @@
 	import EtudeDoc from '../../../components/EtudeDoc.svelte';
 	import EtudeSection from '../../../components/EtudeSection.svelte';
 	import EtudeCard from '../../../components/EtudeCard.svelte';
+	import SpecButton from '../../../components/SpecButton.svelte';
 	import { onMount } from 'svelte';
 
 	interface Rule {

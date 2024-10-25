@@ -6,11 +6,44 @@
 	import type { GridData, PathResult } from '$lib/social-distance';
 	import { parseInput, calculatePath } from '$lib/social-distance';
 
-	let inputText = `9 8
-8 0
-1 2
-2 6
-6 6`;
+	const examples = {
+		corridor: `# Corridor Challenge
+9 8      # Grid size
+4 0      # Creates a narrow corridor
+4 1
+4 2
+4 3
+4 5
+4 6
+4 7`,
+
+		diagonal: `# Diagonal Formation
+8 8      # Grid size
+1 1      # Diagonal line of people
+2 2
+3 3
+4 4
+5 5
+6 6`,
+
+		corners: `# Corner Guards
+10 10    # Grid size
+1 1      # People in corners
+1 8
+8 1
+8 8      # Forces path through middle`,
+
+		sparse: `# Sparse Distribution
+12 12    # Grid size
+2 3      # Scattered people
+4 8
+7 4
+9 9
+3 10
+10 2`
+	};
+
+	let inputText = examples.corridor;
 	let outputText = '';
 	let canvas: HTMLCanvasElement;
 	let ctx: CanvasRenderingContext2D;
@@ -127,9 +160,9 @@
 			currentGrid = parseInput(inputText);
 			currentPath = calculatePath(inputText);
 			drawGrid(currentGrid, currentPath);
-			outputText = `min ${currentPath.min}, total ${currentPath.total}`;
-		} catch {
-			outputText = 'Error: Invalid input format';
+			outputText = `Minimum distance: ${currentPath.min}, Average distance: ${currentPath.total}`;
+		} catch (error) {
+			outputText = `Error: ${error.message}`;
 			currentGrid = null;
 			currentPath = null;
 			if (ctx) {
@@ -137,26 +170,46 @@
 			}
 		}
 	}
+
+	function loadExample(key: keyof typeof examples) {
+		inputText = examples[key];
+		parseAndVisualize();
+	}
 </script>
 
 <EtudeDoc
-	title="Social Distance"
-	description="Determine the optimal path through a grid that maximizes both the minimum and total distances from seated people."
+	title="Social Distance Pathfinder"
+	description="Find optimal paths through a grid while maintaining maximum distance from seated people."
 >
 	<EtudeSection title="Path Finder">
 		<div class="etude-grid">
 			<EtudeCard title="Input">
 				<div class="control-section">
+					<div class="example-buttons">
+						<h4>Example Scenarios:</h4>
+						<div class="button-grid">
+							<button class="pattern-button" on:click={() => loadExample('corridor')}>
+								Corridor
+							</button>
+							<button class="pattern-button" on:click={() => loadExample('diagonal')}>
+								Diagonal
+							</button>
+							<button class="pattern-button" on:click={() => loadExample('corners')}>
+								Corners
+							</button>
+							<button class="pattern-button" on:click={() => loadExample('sparse')}>
+								Sparse
+							</button>
+						</div>
+					</div>
 					<textarea
 						class="input-field"
 						bind:value={inputText}
 						placeholder="Enter grid dimensions and seated positions..."
-						rows="6"
+						rows="8"
 						spellcheck="false"
 					/>
-					<div class="button-container">
-						<button class="game-button" on:click={() => parseAndVisualize()}>Find Path</button>
-					</div>
+					<button class="game-button" on:click={parseAndVisualize}>Find Path</button>
 				</div>
 			</EtudeCard>
 
@@ -188,18 +241,24 @@
 		</EtudeCard>
 	</EtudeSection>
 
-	<EtudeSection title="Guide">
+	<EtudeSection title="Scenarios">
 		<div class="etude-grid">
-			<EtudeCard title="Input Format">
-				<pre class="etude-pre">9 8     # rows columns
-8 0     # seated person
-1 2     # seated person
-2 6     # seated person
-6 6     # seated person</pre>
+			<EtudeCard title="Scenario Types">
 				<ul class="etude-list">
-					<li>First line: Number of rows and columns</li>
-					<li>Following lines: Row and column positions of seated people</li>
-					<li>Grid starts at (0,0) in top-left corner</li>
+					<li>
+						<strong>Corridor Challenge:</strong> Creates a narrow passage that tests minimum distance
+						constraints
+					</li>
+					<li>
+						<strong>Diagonal Formation:</strong> Forces path to choose between following or avoiding
+						the diagonal
+					</li>
+					<li>
+						<strong>Corner Guards:</strong> Tests path finding through open center space
+					</li>
+					<li>
+						<strong>Sparse Distribution:</strong> Tests balancing multiple scattered constraints
+					</li>
 				</ul>
 			</EtudeCard>
 
@@ -209,7 +268,7 @@
 					<li>Can only move horizontally or vertically</li>
 					<li>Must maximize minimum distance from any seated person</li>
 					<li>Must maximize total distance while maintaining minimum</li>
-					<li>Distance is measured as Manhattan distance (|x1-x2| + |y1-y2|)</li>
+					<li>Comments starting with # are ignored</li>
 				</ul>
 			</EtudeCard>
 		</div>
@@ -221,6 +280,31 @@
 		display: flex;
 		flex-direction: column;
 		gap: 15px;
+	}
+
+	.example-buttons {
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+	}
+
+	.button-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+		gap: 8px;
+	}
+
+	.pattern-button {
+		padding: 8px 12px;
+		background: white;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		cursor: pointer;
+		font-size: 0.9em;
+	}
+
+	.pattern-button:hover {
+		background: #f0f0f0;
 	}
 
 	.input-field {
@@ -306,5 +390,20 @@
 
 	.path {
 		background: #ff4444;
+	}
+
+	:global(.etude-list) strong {
+		color: #444;
+	}
+
+	@media (max-width: 800px) {
+		canvas {
+			width: 100%;
+			height: auto;
+		}
+
+		.button-grid {
+			grid-template-columns: repeat(2, 1fr);
+		}
 	}
 </style>
