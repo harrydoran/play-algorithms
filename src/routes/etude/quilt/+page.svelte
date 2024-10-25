@@ -5,8 +5,9 @@
 	import { onMount } from 'svelte';
 	import { parseInput, generateQuilt } from '$lib/quilt';
 
-	let canvas: HTMLCanvasElement;
-	let ctx: CanvasRenderingContext2D;
+	let canvas;
+	let ctx;
+
 	const CANVAS_SIZE = 600;
 
 	// Default to Fibonacci example
@@ -49,7 +50,7 @@
 	};
 
 	onMount(() => {
-		ctx = canvas.getContext('2d')!;
+		ctx = canvas.getContext('2d');
 		generateQuiltFromInput();
 	});
 
@@ -65,7 +66,7 @@
 		link.click();
 	}
 
-	function loadExample(key: keyof typeof examples) {
+	function loadExample(key) {
 		inputText = examples[key];
 		generateQuiltFromInput();
 	}

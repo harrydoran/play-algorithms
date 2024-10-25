@@ -5,7 +5,7 @@ const config = {
 	kit: {
 		adapter: adapter(),
 		paths: {
-			base: '/play-algorithms'
+			base: process.env.NODE_ENV === 'production' ? '/play-algorithms' : ''
 		}
 	}
 };

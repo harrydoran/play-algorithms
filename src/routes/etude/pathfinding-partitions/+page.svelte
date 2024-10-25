@@ -13,7 +13,7 @@
 
 	function processPartitions() {
 		const scenarios = parseInput(inputText);
-		const output: string[] = [];
+		const output = [];
 
 		scenarios.forEach((scenario, index) => {
 			const result = movesToComplete(scenario.basePartition, scenario.targetPartition);

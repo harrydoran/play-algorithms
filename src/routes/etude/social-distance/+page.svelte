@@ -3,7 +3,7 @@
 	import EtudeSection from '../../../components/EtudeSection.svelte';
 	import EtudeCard from '../../../components/EtudeCard.svelte';
 	import { onMount } from 'svelte';
-	import type { GridData, PathResult } from '$lib/social-distance';
+	import { GridData, PathResult } from '$lib/social-distance';
 	import { parseInput, calculatePath } from '$lib/social-distance';
 
 	const examples = {
@@ -45,19 +45,19 @@
 
 	let inputText = examples.corridor;
 	let outputText = '';
-	let canvas: HTMLCanvasElement;
-	let ctx: CanvasRenderingContext2D;
-	let currentGrid: GridData | null = null;
-	let currentPath: PathResult | null = null;
+	let canvas;
+	let ctx;
+	let currentGrid;
+	let currentPath;
 	const CELL_SIZE = 40;
 	const PADDING = 20;
 
 	onMount(() => {
-		ctx = canvas.getContext('2d')!;
+		ctx = canvas.getContext('2d');
 		parseAndVisualize();
 	});
 
-	function drawGrid(grid: GridData, pathResult?: PathResult) {
+	function drawGrid(grid, pathResult) {
 		const width = grid.cols * CELL_SIZE + 2 * PADDING;
 		const height = grid.rows * CELL_SIZE + 2 * PADDING;
 		canvas.width = width;
@@ -171,7 +171,7 @@
 		}
 	}
 
-	function loadExample(key: keyof typeof examples) {
+	function loadExample(key) {
 		inputText = examples[key];
 		parseAndVisualize();
 	}

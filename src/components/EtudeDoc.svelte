@@ -1,8 +1,8 @@
 <script lang="ts">
 	import SpecButton from './SpecButton.svelte';
 	import { page } from '$app/stores';
-	export let title: string;
-	export let description: string;
+	export let title;
+	export let description;
 
 	$: slug = $page.url.pathname.split('/').pop();
 </script>

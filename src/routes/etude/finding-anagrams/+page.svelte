@@ -7,7 +7,6 @@
 	let inputText = `apple
 appleapple
 frog
-
 app
 el
 leap
@@ -17,15 +16,15 @@ pel`;
 	function findAnagrams() {
 		try {
 			const { words, dictionary } = parseInput(inputText);
-			const output: string[] = [];
+			const results = [];
 
 			for (const word of words) {
 				const anagram = findBestAnagram(word, dictionary, []);
-				output.push(formatOutput(word, anagram));
+				results.push(formatOutput(word, anagram));
 			}
 
-			outputText = output.join('\n');
-		} catch {
+			outputText = results.join('\n');
+		} catch (error) {
 			outputText = 'Error: Invalid input format';
 		}
 	}
@@ -48,7 +47,6 @@ pel`;
 				/>
 				<button class="etude-button" on:click={findAnagrams}>Find Anagrams</button>
 			</EtudeCard>
-
 			<EtudeCard title="Output">
 				<pre class="etude-pre">{outputText}</pre>
 			</EtudeCard>
@@ -61,7 +59,6 @@ pel`;
 				<pre class="etude-pre">apple
 appleapple
 frog
-
 app
 el
 leap
@@ -85,3 +82,59 @@ pel</pre>
 		</div>
 	</EtudeSection>
 </EtudeDoc>
+
+<style>
+	.etude-grid {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+		gap: 1.5rem;
+	}
+
+	.etude-input {
+		width: 100%;
+		font-family: monospace;
+		padding: 10px;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		resize: vertical;
+	}
+
+	.etude-button {
+		margin-top: 10px;
+		padding: 8px 16px;
+		background: white;
+		border: 1px solid #ccc;
+		border-radius: 4px;
+		cursor: pointer;
+	}
+
+	.etude-button:hover {
+		background: #f0f0f0;
+	}
+
+	.etude-info {
+		margin-bottom: 10px;
+		color: #666;
+	}
+
+	:global(.etude-pre) {
+		white-space: pre-wrap;
+		word-wrap: break-word;
+		font-family: monospace;
+		background: #f8f8f8;
+		padding: 10px;
+		border-radius: 4px;
+		margin: 0;
+	}
+
+	:global(.etude-list) {
+		list-style-type: disc;
+		padding-left: 20px;
+		margin: 0;
+	}
+
+	:global(.etude-list li) {
+		margin-bottom: 8px;
+		color: #666;
+	}
+</style>

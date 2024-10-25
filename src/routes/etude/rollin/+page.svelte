@@ -6,7 +6,7 @@
 	import { handleRoll, isComplete } from '$lib/rollin';
 
 	let currentDice = Array(6).fill(0);
-	let rolls: { roll: number; diceAfter: number[]; replaced: number }[] = [];
+	let rolls = [];
 	let gameComplete = false;
 
 	onMount(() => {

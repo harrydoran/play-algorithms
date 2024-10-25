@@ -2,47 +2,41 @@
 	import EtudeDoc from '../../../components/EtudeDoc.svelte';
 	import EtudeSection from '../../../components/EtudeSection.svelte';
 	import EtudeCard from '../../../components/EtudeCard.svelte';
-	import SpecButton from '../../../components/SpecButton.svelte';
 	import { onMount } from 'svelte';
+	import { DEFAULT_RULES, createEmptyRule } from '$lib/ants';
 
-	interface Rule {
-		currentColor: string;
-		directions: string;
-		newColors: string;
-	}
-
-	let rules: Rule[] = [
-		{ currentColor: 'w', directions: 'ESWN', newColors: 'bbbb' },
-		{ currentColor: 'b', directions: 'WNES', newColors: 'wwww' }
-	];
+	let rules = [...DEFAULT_RULES];
 	let steps = 11000;
-	let newRule: Rule = { currentColor: '', directions: '', newColors: '' };
-	let canvas: HTMLCanvasElement;
-	let ctx: CanvasRenderingContext2D;
+	let newRule = createEmptyRule();
+
+	let canvas;
+	let ctx;
 
 	const CANVAS_SIZE = 300;
 	const GRID_CENTER = CANVAS_SIZE / 2;
 
 	onMount(() => {
-		ctx = canvas.getContext('2d')!;
+		ctx = canvas.getContext('2d');
 		clearCanvas();
 	});
 
 	function clearCanvas() {
+		if (!ctx) return;
 		ctx.fillStyle = '#ffffff';
 		ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 	}
 
 	function runSimulation() {
+		if (!ctx) return;
 		clearCanvas();
 
 		// Initial state
 		let pos = { x: GRID_CENTER, y: GRID_CENTER };
 		let dir = 0; // North
-		let grid = new Map<string, string>();
+		let grid = new Map();
 
 		// Convert rules to map
-		let rulesMap = new Map<string, { dirs: string; symbols: string }>();
+		let rulesMap = new Map();
 		let startSymbol = rules[0]?.currentColor || 'w';
 
 		rules.forEach((rule) => {
@@ -56,7 +50,9 @@
 		for (let i = 0; i < steps; i++) {
 			const key = `${pos.x},${pos.y}`;
 			const currentSymbol = grid.get(key) || startSymbol;
-			const rule = rulesMap.get(currentSymbol)!;
+			const rule = rulesMap.get(currentSymbol);
+
+			if (!rule) continue; // Skip iteration if rule not found
 
 			// Draw current symbol
 			ctx.fillStyle = currentSymbol === 'w' ? '#ffffff' : '#000000';

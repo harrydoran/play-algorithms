@@ -2,78 +2,9 @@
 	import EtudeDoc from '../../../components/EtudeDoc.svelte';
 	import EtudeSection from '../../../components/EtudeSection.svelte';
 	import EtudeCard from '../../../components/EtudeCard.svelte';
+	import { DEFAULT_STEPS } from '$lib/four-the-same.ts';
 
-	interface ActionOutcome {
-		title: string;
-		outcomes: {
-			condition: string;
-			action: string;
-		}[];
-	}
-
-	const steps: ActionOutcome[] = [
-		{
-			title: 'Initial Diagonal Check',
-			outcomes: [
-				{
-					condition: 'Same',
-					action: 'Proceed to Step 3'
-				},
-				{
-					condition: 'Different',
-					action: 'Flip all tails to heads'
-				}
-			]
-		},
-		{
-			title: 'Second Diagonal Check',
-			outcomes: [
-				{
-					condition: 'Different',
-					action: 'Flip the odd one to win'
-				},
-				{
-					condition: 'Same',
-					action: 'Flip both coins'
-				}
-			]
-		},
-		{
-			title: 'State Verification',
-			outcomes: [
-				{
-					condition: 'Different',
-					action: 'Flip odd one to win'
-				},
-				{
-					condition: 'Same',
-					action: 'Flip one coin'
-				}
-			]
-		},
-		{
-			title: 'Horizontal Alignment',
-			outcomes: [
-				{
-					condition: 'Same',
-					action: 'Puzzle solved'
-				},
-				{
-					condition: 'Different',
-					action: 'Diagonal position achieved'
-				}
-			]
-		},
-		{
-			title: 'Final Resolution',
-			outcomes: [
-				{
-					condition: 'Any state',
-					action: 'Choose diagonal coins and flip both to win'
-				}
-			]
-		}
-	];
+	const steps = DEFAULT_STEPS;
 </script>
 
 <EtudeDoc
