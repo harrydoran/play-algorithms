@@ -316,11 +316,6 @@
 		resize: vertical;
 	}
 
-	.button-container {
-		display: flex;
-		gap: 10px;
-	}
-
 	.game-button {
 		padding: 10px 20px;
 		cursor: pointer;
