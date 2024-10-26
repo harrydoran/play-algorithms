@@ -14,7 +14,7 @@
 	function analyzeGame() {
 		try {
 			const scenarios = parseInput(inputText);
-			const output: string[] = [];
+			const output = [];
 
 			scenarios.forEach((scenario, index) => {
 				// Base partition

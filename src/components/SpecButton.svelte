@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { FileText } from 'lucide-svelte';
-	export let slug: string;
+	export let slug;
 </script>
 
 <a

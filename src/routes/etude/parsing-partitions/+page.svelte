@@ -14,7 +14,7 @@
 	function parsePartitions() {
 		try {
 			const scenarios = validateAllLines(inputText);
-			const output: string[] = [];
+			const output = [];
 
 			scenarios.forEach((scenario, index) => {
 				if (!scenario.valid) {
