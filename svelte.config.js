@@ -11,7 +11,7 @@ const config = {
 			strict: true
 		})
 	},
-	base: process.argv.includes('dev') ? '' : 'play-algorithms'
+	base: 'play-algorithms'
 };
 
 export default config;
