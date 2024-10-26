@@ -1,4 +1,6 @@
 <script>
+	import { base } from '$app/paths';
+
 	export let title = '';
 	export let description = '';
 	export let etudeNumber = '';
@@ -10,7 +12,7 @@
 		.replace(/^-|-$/g, '');
 </script>
 
-<a href="/etude/{slug}" class="card">
+<a href="{base}/etude/{slug}" class="card">
 	<span class="etude-number">#{etudeNumber}</span>
 	<div class="card-content">
 		<h3>{title}</h3>

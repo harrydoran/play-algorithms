@@ -11,7 +11,11 @@ const config = {
 			strict: true
 		})
 	},
-	base: 'play-algorithms'
+	paths: {
+		base: '/playalgorithms'
+		// Optional: If you want to keep the base during development, remove this line
+		// If you keep it, add: process.env.NODE_ENV === 'production' ? '/playalgorithms' : ''
+	}
 };
 
 export default config;

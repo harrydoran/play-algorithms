@@ -1,10 +1,11 @@
 <script lang="ts">
 	import { FileText } from 'lucide-svelte';
+	import { base } from '$app/paths';
 	export let slug;
 </script>
 
 <a
-	href={`/etude-specs/${slug}.pdf`}
+	href={`${base}/etude-specs/${slug}.pdf`}
 	target="_blank"
 	rel="noopener noreferrer"
 	class="spec-link"
