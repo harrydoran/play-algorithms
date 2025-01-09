@@ -2,7 +2,7 @@
 
 This is my completed work for COSC326 (Computational Problem Solving) at the University of Otago. I've built interactive visualizations for each étude (programming challenge) using Svelte and TypeScript, focusing on creating clear and engaging ways to understand the solutions.
 
-Live at (https://harrydoran.github.io/play-algorithms/)[https://harrydoran.github.io/play-algorithms/]
+Live at [https://harrydoran.github.io/play-algorithms/](https://harrydoran.github.io/play-algorithms/)
 
 ## About
 
